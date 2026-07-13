@@ -2,6 +2,9 @@ import{createClient}from'@supabase/supabase-js';
 const url=import.meta.env.VITE_SUPABASE_URL;const key=import.meta.env.VITE_SUPABASE_ANON_KEY;
 export const isDemo=!url||!key;
 export const supabase=isDemo?null:createClient(url,key);
+export async function signIn(email:string,password:string){if(!supabase)return{ok:true};const{error}=await supabase.auth.signInWithPassword({email,password});return{ok:!error,error:error?.message}}
+export async function signOut(){if(supabase)await supabase.auth.signOut()}
+export async function currentSession(){if(!supabase)return{demo:true,user:{email:'demo@digniin.local'}};const{data}=await supabase.auth.getSession();return{demo:false,user:data.session?.user||null}}
 
 export type CommunityReport={id:string;category:string;location:string;description:string;state:'pending'|'verified'|'rejected';created_at:string};
 const seed:CommunityReport[]=[
