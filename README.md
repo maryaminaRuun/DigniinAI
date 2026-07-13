@@ -38,6 +38,20 @@ Coordinator application: `http://localhost:5173/admin.html`
 
 The coordinator runs safely with local demonstration data by default. Copy `.env.example` to `.env` and add the Supabase project URL and public anonymous key to enable the shared database. Never put a Supabase service-role key in the frontend.
 
+## Secure Supabase setup
+
+1. Create a Supabase project.
+2. Run `docs/database.sql`, `docs/security.sql`, then `docs/seed.sql` in the SQL editor.
+3. Create a coordinator under Authentication > Users.
+4. Insert the user's UUID into `coordinator_profiles` using the example in `docs/security.sql`.
+5. Copy `.env.example` to `.env` and add the project URL and public anonymous key.
+
+Never use or commit a Supabase service-role key in this frontend.
+
+## Vercel deployment
+
+Import the GitHub repository into Vercel. `vercel.json` configures the Vite build, security headers, and `/admin` route. Add both `VITE_SUPABASE_*` environment values in Vercel Project Settings before deploying live database features.
+
 ## Responsible design
 
 - Official authorities remain responsible for hazard determination.
