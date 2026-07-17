@@ -121,15 +121,32 @@ function App() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const t = copy[lang];
-  useEffect(() => localStorage.setItem("digniin-status", status), [status]);
+  useEffect(() => {
+    localStorage.setItem("digniin-status", status);
+    if (status !== "none") {
+      const apiStatus = status === "help" ? "need_help" : status;
+      submitAlertResponse(apiStatus).then((result) => {
+        if (!result.ok && !result.error?.includes("duplicate")) {
+          setSubmitError(
+            lang === "en"
+              ? "Response is saved on this device and will synchronize when the connection is available."
+              : "Jawaabta qalabkan ayaa lagu kaydiyey, waxaana la diri doonaa marka internetku diyaar noqdo.",
+          );
+        }
+      });
+    }
+  }, [status, lang]);
+  useEffect(() => {
+    const retry = () => {
+      if (status === "none") return;
+      submitAlertResponse(status === "help" ? "need_help" : status);
+    };
+    window.addEventListener("online", retry);
+    return () => window.removeEventListener("online", retry);
+  }, [status]);
   async function respond(next: Status) {
-    const firstResponse = status === "none";
     setStatus(next);
     setSubmitError("");
-    if (!firstResponse || next === "none") return;
-    const apiStatus = next === "help" ? "need_help" : next;
-    const result = await submitAlertResponse(apiStatus);
-    if (!result.ok) setSubmitError(lang === "en" ? "Response saved offline and will need to be retried." : "Jawaabta offline ayaa la kaydiyey; dib ayaa loo diri doonaa.");
   }
   async function reportIncident(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); setSubmitting(true); setSubmitError("");
