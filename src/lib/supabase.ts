@@ -17,6 +17,41 @@ export async function currentSession() {
   return { demo: false, user: data.session?.user || null };
 }
 
+const DEMO_ALERT_ID = "20000000-0000-0000-0000-000000000001";
+const BELEDWEYNE_ID = "10000000-0000-0000-0000-000000000001";
+
+function deviceId() {
+  let id = localStorage.getItem("digniin-device-id");
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("digniin-device-id", id);
+  }
+  return id;
+}
+
+export async function submitAlertResponse(status: "received" | "acting" | "need_help") {
+  if (!supabase) return { ok: true, demo: true };
+  const { error } = await supabase.from("alert_responses").insert({
+    alert_id: DEMO_ALERT_ID,
+    anonymous_device_id: deviceId(),
+    status,
+    location_id: BELEDWEYNE_ID,
+  });
+  return { ok: !error, error: error?.message };
+}
+
+export async function submitCommunityReport(category: string, description: string) {
+  if (!supabase) return { ok: true, demo: true };
+  const { error } = await supabase.from("community_reports").insert({
+    alert_id: DEMO_ALERT_ID,
+    location_id: BELEDWEYNE_ID,
+    category,
+    description,
+    state: "pending",
+  });
+  return { ok: !error, error: error?.message };
+}
+
 export type CommunityReport = {
   id: string;
   category: string;
